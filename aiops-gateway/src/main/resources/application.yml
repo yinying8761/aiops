@@ -1,0 +1,76 @@
+﻿server:
+  port: 8080
+
+spring:
+  application:
+    name: aiops-gateway
+  cloud:
+    nacos:
+      discovery:
+        enabled: ${NACOS_ENABLED:false}
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+        # 固定注册 IP：本机装有 Radmin VPN 等虚拟网卡时，避免 Nacos 误选非业务网卡
+        ip: ${NACOS_IP:127.0.0.1}
+    gateway:
+      # 显式路由。默认用固定地址，未安装 Nacos 也能独立运行；
+      # 开启 Nacos 时通过环境变量把 URI 覆盖为 lb://服务名，即走注册中心负载均衡。
+      # 例：$env:AUTH_URI="lb://aiops-auth-service"
+      discovery:
+        locator:
+          enabled: ${NACOS_ENABLED:false}
+      routes:
+        - id: auth-service
+          uri: ${AUTH_URI:http://127.0.0.1:8081}
+          predicates:
+            - Path=/auth/**
+        - id: alert-service
+          uri: ${ALERT_URI:http://127.0.0.1:8082}
+          predicates:
+            - Path=/alerts/**
+        - id: monitor-service
+          uri: ${MONITOR_URI:http://127.0.0.1:8083}
+          predicates:
+            - Path=/metrics/**
+        - id: agent-service
+          uri: ${AGENT_URI:http://127.0.0.1:8084}
+          predicates:
+            - Path=/agent/**
+        - id: ticket-service
+          uri: ${TICKET_URI:http://127.0.0.1:8085}
+          predicates:
+            - Path=/tickets/**
+        - id: knowledge-service
+          uri: ${KNOWLEDGE_URI:http://127.0.0.1:8086}
+          predicates:
+            - Path=/knowledge/**
+        - id: report-service
+          uri: ${REPORT_URI:http://127.0.0.1:8087}
+          predicates:
+            - Path=/reports/**
+        - id: demo-app
+          uri: ${DEMO_URI:http://127.0.0.1:8090}
+          predicates:
+            - Path=/demo/**
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 60s
+
+aiops:
+  jwt:
+    secret: ${JWT_SECRET:aiops-platform-sj004106-not-want-to-move-group-2026-secret-key}
+    expire-seconds: 28800
+    issuer: aiops-platform
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.aiops: info
+    org.springframework.cloud.gateway: info

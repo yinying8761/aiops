@@ -1,0 +1,114 @@
+﻿server:
+  port: 8082
+
+spring:
+  application:
+    name: aiops-alert-service
+  cloud:
+    nacos:
+      discovery:
+        enabled: ${NACOS_ENABLED:false}
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+        # 固定注册 IP：本机装有 Radmin VPN 等虚拟网卡时，避免 Nacos 误选非业务网卡
+        ip: ${NACOS_IP:127.0.0.1}
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/aiops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: ${MYSQL_PASSWORD:CHANGE_ME}
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 5
+      connection-timeout: 30000
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 32
+          max-idle: 16
+          min-idle: 4
+  rabbitmq:
+    host: ${RABBITMQ_HOST:127.0.0.1}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:aiops}
+    password: ${RABBITMQ_PASSWORD:aiops123}
+    # 投递确认：消息到达交换机才认为是成功，避免 MQ 抖动时静默丢消息
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    listener:
+      simple:
+        acknowledge-mode: auto
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000ms
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  mapper-locations: classpath*:mapper/**/*.xml
+
+aiops:
+  mq:
+    # 默认关闭 MQ，用本地线程池异步；装好 RabbitMQ 后置为 true
+    enabled: ${MQ_ENABLED:false}
+  agent:
+    url: ${AGENT_URL:http://127.0.0.1:8084}
+  alert:
+    rules:
+      - alertType: cpu
+        threshold: 95.0
+        levelOver: P0
+        levelDefault: P1
+      - alertType: memory
+        threshold: 95.0
+        levelOver: P0
+        levelDefault: P1
+      - alertType: disk
+        threshold: 90.0
+        levelOver: P1
+        levelDefault: P2
+      - alertType: network
+        threshold: 80.0
+        levelOver: P1
+        levelDefault: P2
+      - alertType: database
+        levelDefault: P1
+      - alertType: connection_pool
+        threshold: 90.0
+        levelOver: P0
+        levelDefault: P1
+      - alertType: thread_pool
+        threshold: 90.0
+        levelOver: P1
+        levelDefault: P1
+      - alertType: mq
+        levelDefault: P2
+      - alertType: application
+        levelDefault: P2
+      - alertType: health
+        levelDefault: P1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.aiops: info

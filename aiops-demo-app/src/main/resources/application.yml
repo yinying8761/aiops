@@ -1,0 +1,29 @@
+﻿server:
+  port: 8090
+spring:
+  application:
+    name: aiops-demo-app
+  cloud:
+    nacos:
+      discovery:
+        enabled: ${NACOS_ENABLED:false}
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+        # 固定注册 IP：本机装有 Radmin VPN 等虚拟网卡时，避免 Nacos 误选非业务网卡
+        ip: ${NACOS_IP:127.0.0.1}
+
+aiops:
+  monitor:
+    url: ${MONITOR_URL:http://127.0.0.1:8083}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.aiops: info

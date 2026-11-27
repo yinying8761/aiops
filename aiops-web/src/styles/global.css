@@ -1,0 +1,95 @@
+:root {
+  --aiops-primary: #2b5fdf;
+  --aiops-bg: #f4f6fa;
+  --aiops-dark: #131a2b;
+  --aiops-panel: #1b2437;
+  --aiops-border: #2a3550;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei',
+    'PingFang SC', sans-serif;
+  background: var(--aiops-bg);
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: #1f2740;
+}
+
+.card-panel {
+  background: #fff;
+  border-radius: 8px;
+  padding: 18px;
+  box-shadow: 0 1px 4px rgba(20, 30, 60, 0.06);
+}
+
+.mono {
+  font-family: Consolas, Monaco, 'Courier New', monospace;
+}
+
+/* 级别徽标 */
+.level-tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+}
+.level-P0 { background: #d93025; }
+.level-P1 { background: #e8710a; }
+.level-P2 { background: #1a73e8; }
+.level-P3 { background: #5f6368; }
+
+/* 大屏深色区域 */
+.dark-panel {
+  background: var(--aiops-panel);
+  border: 1px solid var(--aiops-border);
+  border-radius: 8px;
+  padding: 16px;
+  color: #dbe4f5;
+}
+
+.dark-panel .title {
+  font-size: 14px;
+  color: #8ba3cc;
+  margin-bottom: 12px;
+}
+
+/* Agent 分析步骤流 */
+.step-item {
+  border-left: 3px solid #d0d7e6;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  background: #fafbfd;
+  border-radius: 0 6px 6px 0;
+}
+.step-item.TOOL_CALL { border-left-color: #e8710a; background: #fff8f2; }
+.step-item.TOOL_RESULT { border-left-color: #1e8e3e; background: #f3fbf5; }
+.step-item.STAGE_START { border-left-color: #2b5fdf; background: #f2f6ff; }
+.step-item.STAGE_END { border-left-color: #1e8e3e; }
+.step-item.OUTPUT { border-left-color: #7627bb; background: #faf5ff; }
+
+.step-meta {
+  font-size: 12px;
+  color: #6b7a99;
+  margin-bottom: 4px;
+}
+.step-content {
+  font-size: 13px;
+  color: #232a3d;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

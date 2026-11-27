@@ -1,0 +1,92 @@
+﻿server:
+  port: 8084
+
+spring:
+  application:
+    name: aiops-agent-service
+  cloud:
+    nacos:
+      discovery:
+        enabled: ${NACOS_ENABLED:false}
+        server-addr: ${NACOS_ADDR:127.0.0.1:8848}
+        # 固定注册 IP：本机装有 Radmin VPN 等虚拟网卡时，避免 Nacos 误选非业务网卡
+        ip: ${NACOS_IP:127.0.0.1}
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/aiops?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: ${MYSQL_PASSWORD:CHANGE_ME}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
+      timeout: 3000ms
+  rabbitmq:
+    host: ${RABBITMQ_HOST:127.0.0.1}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:aiops}
+    password: ${RABBITMQ_PASSWORD:aiops123}
+    listener:
+      simple:
+        acknowledge-mode: auto
+        # 单次消费耗时较长（多轮 LLM+工具），限制并发避免压垮 LLM 配额
+        concurrency: 2
+        max-concurrency: 4
+        prefetch: 1
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 2000ms
+  # Spring AI 配置：仅在 aiops.llm.provider=deepseek 时生效
+  ai:
+    openai:
+      api-key: ${DEEPSEEK_API_KEY:sk-placeholder-set-env-to-enable-real-llm}
+      base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+      chat:
+        options:
+          model: ${DEEPSEEK_MODEL:deepseek-chat}
+          temperature: 0.2
+      embedding:
+        options:
+          model: text-embedding-3-small
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      id-type: auto
+  mapper-locations: classpath*:mapper/**/*.xml
+
+aiops:
+  # mock（默认，无需 Key） / deepseek（需 DEEPSEEK_API_KEY 环境变量）
+  llm:
+    provider: ${LLM_PROVIDER:mock}
+  # MQ 开关：与 alert-service 保持一致，true 时由 RabbitMQ 消费分析任务
+  mq:
+    enabled: ${MQ_ENABLED:false}
+  services:
+    monitor: ${MONITOR_URL:http://127.0.0.1:8083}
+    alert: ${ALERT_URL:http://127.0.0.1:8082}
+    knowledge: ${KNOWLEDGE_URL:http://127.0.0.1:8086}
+    ticket: ${TICKET_URL:http://127.0.0.1:8085}
+    report: ${REPORT_URL:http://127.0.0.1:8087}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.aiops: info
+    org.springframework.ai: warn
